@@ -1,0 +1,146 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head lang="en">
+  <meta charset="UTF-8">
+  <script language="JavaScript">
+    function showInput() {
+        document.getElementById('display').innerHTML = 
+                    document.getElementById("user_input").value;
+    }
+  </script>
+
+  </head>
+<body>
+
+  <form>
+    <label><b>Enter a Message</b></label>
+    <input type="text" name="message" id="user_input">
+  </form>
+
+  <input type="submit" onclick="showInput();"><br/>
+  <label>Your input: </label>
+  <p><span id='display'></span></p>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // NOTE: Thanks to 'grouped_for' every product will have it's own files attached
+    $(function () {
+
+        var product_type = "UploadProduct";
+        var valid_file_type = true; // Flag holding an info about file type validation
+
+        $('.dz').dropzone([{
+                id: "04ad3e13b588af9d0a8f52a77cc64a3e",
+                upload_url: "https://shop.plotbot.co.uk/s/plotbot/file/upload",
+                delete_url: "https://shop.plotbot.co.uk/s/plotbot/file/delete",
+                files: [[]],
+                template_url: "/s/plotbot/site/template/plugin/dropzone",
+                // Define custom file validation function. Allow to upload "application/pdf" file types only
+                validate: function (file) {
+                    // For UploadProduct type only pdf files are allowed
+                    if (product_type == "UploadProduct") {
+                        if ($.inArray(file.type, ["application/pdf"]) === -1) {
+                            valid_file_type = false;
+                            return false;
+                        }
+                    }
+
+                    return true;
+                },
+                // Define before method actions
+                before: function ($dz, method) {
+                    switch (method) {
+
+                        case "uploadFiles":
+
+                            if ($dz.data('uploads') > 0) {
+                                $('#addToBasket').hide();
+                                $('#emailThis').hide(); // This is also button 'No files attached'
+                                $('#addToBasket-uploading').show();
+                                $("#addToBasket").addClass('disabled2').removeClass("primary").removeClass("accented");
+                            }
+
+                            break;
+                    }
+                },
+                // Define after method actions
+                after: function ($dz, method, args, result) {
+                    switch (method) {
+
+                        case "uploadFiles":
+                            if (!valid_file_type) {
+                                var message = 'Please upload PDFs only';
+                                popupNotice(message, "error");
+                            }
+                            valid_file_type = true;
+                            break;
+
+                        case "renderFile":
+                            var $dz_file = result;
+
+                            // When file_id is given it means it is a dropzone files
+                            // When preconfigured_product_file_id is given it means it is a preconfigured product file
+                            var value = args[0].file_id;
+                            if (!empty(value)) {
+                                var name = "File[][file_id]";
+                            } else {
+                                var value = args[0].preconfigured_product_file_id;
+                                var name = "PreconfiguredProductFile[][preconfigured_product_file_id]";
+                            }
+
+                            // Attach input element into dropzone. Once a file row will be removed it will be removed as well
+                            $dz_file.append('<input name="' + name + '" type="hidden" value="' + value + '">');
+
+                            // Set delete functionality
+                            $dz_file.find('.dz-delete i').click(function () {
+                                $dz.dropzone('deleteFile', this);
+                            });
+
+                            if ($dz.data('uploads') == 0) {
+                                reloadSummary();
+                            }
+
+                            break;
+
+                        case "deleteFile":
+                            // NOTE: reloadSummary() has to be called here as this function is posting input elements rendered by custom renderFile()
+                            if ($dz.data('uploads') == 0) {
+                                reloadSummary();
+                            }
+                            break;
+                    }
+                }
+            }]);
+    });
+
+</script>
+  <div class="container-inner toggleDigitalOff">
+    <br>
+    <div class="form-group">
+        <label class="label" for="">Attach Files</label>            <span class="required">*</span>
+            
+                    <input id="dropzone_id" type="hidden" name="dropzone_id" value="04ad3e13b588af9d0a8f52a77cc64a3e">
+
+            <div class="dz" id="04ad3e13b588af9d0a8f52a77cc64a3e" aria-dropzone="04ad3e13b588af9d0a8f52a77cc64a3e">
+        <div class="dz-message text-muted">
+            Drop files here or click to upload        </div>
+
+        <div class="dz-files">
+        </div>
+
+        <input style="display: none;" type="file" name="file" multiple="multiple" onchange="$(this).closest('[aria-dropzone]').dropzone('uploadFiles', this.files);">
+    </div>
+
+                </div>
+</div>
+</body>
+</html>
